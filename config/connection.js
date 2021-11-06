@@ -1,7 +1,9 @@
 require('dotenv').config();
 
+//import Sequalize constructor from the library
 const Sequelize = require('sequelize');
 
+//create connection to database
 const sequelize = process.env.JAWSDB_URL
   ? new Sequelize(process.env.JAWSDB_URL)
   : new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PW, {
