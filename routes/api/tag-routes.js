@@ -7,7 +7,15 @@ router.get('/', (req, res) => {
   // find all tags
   // be sure to include its associated Product data
   Tag.findAll({
-    attributes: ['id','tag_name']
+    attributes: ['id','tag_name'],
+    include: [
+      {
+        model: Product,
+        attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+        through: ProductTag,
+        as: 'products'
+      }
+    ],
   })
     .then(dbTags => res.json(dbTags))
     .catch(err => {
@@ -19,22 +27,80 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   // find a single tag by its `id`
   // be sure to include its associated Product data
-    Tag.catch(err => {
+  Tag.findOne({
+    where: {
+      id: req.params.id,
+    },
+    include: [
+      {
+        model: Product,
+        attributes: ["id", "product_name", "price", "stock", "category_id"],
+        through: ProductTag,
+        as: "products",
+      },
+    ],
+  })
+    .then((dbTags) => {
+      if (!dbTags) {
+        res.status(404).json({ message: "No tag found with this id." });
+      }
+      res.json(dbTags);
+    })
+    .catch((err) => {
       console.log(err);
       res.status(500).json(err);
-    });
+  });
 });
 
 router.post('/', (req, res) => {
   // create a new tag
+  Tag.create({
+    tag_name: req.body.tag_name,
+  })
+    .then((dbTags) => res.json(dbTags))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+  });
 });
 
-router.put('/:id', (req, res) => {
+router.put("/:id", (req, res) => {
   // update a tag's name by its `id` value
+  Tag.update(req.body, {
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((dbTags) => {
+      if (!dbTags[0]) {
+        res.status(404).json({ message: 'There was no tag found with this id.' });
+      }
+      res.json(dbTags);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+  });
 });
 
 router.delete('/:id', (req, res) => {
   // delete on tag by its `id` value
+  Tag.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+    .then((dbTags) => {
+      if (!dbTags) {
+        res.status(404).json({ message: 'No tag found with this id.' });
+        return;
+      }
+      res.json(dbTags);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json(err);
+    });
 });
 
 module.exports = router;

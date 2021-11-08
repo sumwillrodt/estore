@@ -40,7 +40,7 @@ router.get('/:id', (req, res) => {
     .then(dbCategories => {
       if (!dbCategories) {
         console.log(err);
-        res.status(404).json( { message: 'No user found'});
+        res.status(404).json( { message: 'No category found with this id.'});
       } 
       res.json(dbCategories);
     })
